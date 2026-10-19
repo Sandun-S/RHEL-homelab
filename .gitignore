@@ -4,7 +4,8 @@
 # Always track this file
 !/.gitignore
 !/README.md
-!/guide.md
+!/docs/
+!/docs/*.md
 
 # Docker stack files
 !/ai-iot-stack.yml

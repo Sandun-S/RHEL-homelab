@@ -12,20 +12,23 @@
 
 ## 🌟 Project Overview
 
-This repository contains the live Docker Swarm stack specifications and service configurations for **`syntax`** (`coinflow.lk`) — a continuous 24/7 home server designed around enterprise Linux administration, zero-trust security, and resource-constrained edge computing.
+This repository contains the live Docker Swarm stack specifications, service configurations, and complete bare-metal engineering runbooks for **`syntax`** (`coinflow.lk` / `192.168.1.3`) — a continuous 24/7 home server built around enterprise Linux administration, zero-trust security, and resource-constrained edge computing.
 
-Instead of leaving internal Windows drives modified or exposing inbound router ports (`80`/`443`/`22`), the entire server boots externally from a dedicated USB NVMe SSD, unlocks encrypted local storage automatically at boot, mounts remote workstation shares on-demand with fault tolerance, and routes traffic globally through **Cloudflare Zero Trust Tunnels** combined with **AdGuard Home Split-DNS** on the local network.
+Instead of modifying internal Windows drives or exposing inbound router ports (`80`/`443`/`22`), the entire server boots externally from a dedicated USB NVMe SSD, unlocks encrypted local BitLocker storage automatically at boot, mounts remote workstation shares on-demand with fault tolerance, and routes traffic globally through **Cloudflare Zero Trust Tunnels** paired with **AdGuard Home Split-DNS** on the local network.
 
-### Key Engineering Highlights
-- **Zero-Inbound-Port Security:** Outbound-only `cloudflared.service` tunnel handling wildcard HTTPS (`*.coinflow.lk`) and SSH (`ssh.coinflow.lk` via `ProxyCommand`), backed by Cloudflare Service Tokens for CLI/API authentication.
-- **Split-Horizon DNS & IPv6 Leak Prevention:** AdGuard Home rewrites `*.coinflow.lk` to the local LAN IP (`192.168.1.3`) for zero-latency gigabit LAN streaming while blocking `AAAA` queries (`||coinflow.lk^$dnstype=AAAA`) to prevent client IPv6 DNS bypass.
-- **Cloudflare ToS-Compliant Media Proxy:** Custom Nginx Proxy Manager location rules detect the `CF-Connecting-IP` header to block video streaming over the public tunnel while allowing full catalog browsing remotely and unrestricted streaming over home Wi-Fi.
-- **Edge AI & Agentic CLI:** CPU-throttled (`OLLAMA_NUM_THREADS=3`) local LLM inference (`gemma4:e2b`) via Ollama & Open WebUI, integrated with **NousResearch Hermes Agent** and a custom `/usr/local/bin/ask` + `glow` terminal assistant.
-- **Hybrid 3-Tier Storage Architecture:**
-  1. **External USB NVMe (`/dev/sda`):** RHEL 10.1 LVM root (`62 GB` XFS after online `/home` reclamation) + `50 GB` NTFS staging partition (`/mnt/media_drive`).
-  2. **Internal 1 TB BitLocker HDD (`/dev/sdb1`):** Auto-unlocked at boot via `/etc/crypttab` (`bitlk`) and mounted read-write at `/mnt/win_1tb`.
-  3. **Fault-Tolerant Network SMB Shares (`//192.168.1.2/*`):** On-demand `x-systemd.automount` CIFS shares exposed into Swarm containers using `propagation: rshared`.
-- **Git Allowlist Backup Pattern:** Strict `.gitignore` (`/*` default ignore with explicit `!/...` allowlisting) tracks live configurations directly from `/home/sandun` without leaking keys, SSH credentials, or container databases.
+---
+
+## 📚 Complete Rebuild & Operations Guides (`docs/`)
+
+If you are rebuilding this server from scratch, connecting to it from a new workstation, or wiring up the services, follow the 5 modular guides in **[`docs/`](./docs/)**:
+
+| Guide | What It Covers |
+| :--- | :--- |
+| **[`01-OS-Install-and-Hardware.md`](./docs/01-OS-Install-and-Hardware.md)** | **RHEL 10.1 Bare-Metal Install & Real-World Error Fixes:** External USB NVMe partitioning, fixing the UEFI `BOOTX64.EFI` removable media boot failure, fixing the missing Wi-Fi driver (`NetworkManager-wifi` + `wpa_supplicant`) after minimal install, 24/7 lid-closed screen blanking, KVM/Cockpit setup, Docker CE installation, and `/etc/docker/daemon.json` DNS (`192.168.1.3`, `192.168.1.1`, `1.1.1.1`). |
+| **[`02-Storage-BitLocker-and-SMB.md`](./docs/02-Storage-BitLocker-and-SMB.md)** | **Hybrid 3-Tier Storage Engineering:** How to inspect disks and extract `UUID` / `PARTUUID` via `lsblk -f` and `blkid`, mounting `/dev/sda2` NTFS (`ntfs-3g`), online LVM `/home` removal & XFS root expansion to 62 GB (`lvextend -r`), automated boot-time BitLocker decryption via `/etc/crypttab`, fault-tolerant Windows Desktop SMB `x-systemd.automount` shares, and safe Swarm scale-down before unmounting. |
+| **[`03-Cloudflare-NPM-and-AdGuard-DNS.md`](./docs/03-Cloudflare-NPM-and-AdGuard-DNS.md)** | **Zero-Trust Ingress, Client SSH & Split-DNS:** Installing `cloudflared` on both the RHEL server and client workstation, `~/.ssh/config` (`ssh syntax`) with `LocalForward` admin tunnels (`3005`, `8081`, `8082`), Cloudflare Tunnel routes & mobile bypass policies, freeing port 53 (`systemd-resolved`), all 14 Nginx Proxy Manager host rules + custom location blocks, and AdGuard Home Split-DNS with IPv6 `AAAA` leak prevention. |
+| **[`04-Media-and-Servarr-Setup.md`](./docs/04-Media-and-Servarr-Setup.md)** | **Media Stack & Complete App Interconnections:** Creating required host bind-mount folders (`UID 1000`), deploying `media-stack.yml`, internal `hub_net` service URLs, and step-by-step UI wiring across **qBittorrent** $\rightarrow$ **FlareSolverr** $\rightarrow$ **Prowlarr** $\rightarrow$ **Radarr & Sonarr** $\rightarrow$ **Jellyfin** $\rightarrow$ **Jellyseerr (Seerr)** $\rightarrow$ **Stash**, plus the automated `.zip` unpack script. |
+| **[`05-AI-Stack-Hermes-and-Dashboard.md`](./docs/05-AI-Stack-Hermes-and-Dashboard.md)** | **Edge AI, Model Downloads, Hermes Agent & Homepage:** Deploying `ai-iot-stack.yml` (CPU-throttled Ollama + Open WebUI), pulling `gemma4:e2b` and scheduling off-peak `00:05` nightly downloads via `systemd-run`, installing NousResearch Hermes Agent (`libatomic` + Cloudflare Service Token headers), setting up the `ask` + `glow` CLI assistant, and configuring the Homepage dashboard (`Syntax Edge Hub`). |
 
 ---
 
@@ -92,42 +95,30 @@ All application stacks communicate over the external attachable Swarm overlay ne
 
 ---
 
-## 📂 Repository Structure
+## 🔐 Quick Access Reference (How to Connect at Home or Remotely)
 
-```text
-.
-├── .gitignore                 # Allowlist-based Git filter for /home/sandun
-├── README.md                  # Architecture overview & project showcase
-├── guide.md                   # Step-by-step build, deployment & remote access guide
-├── ai-iot-stack.yml           # Ollama & Open-WebUI Swarm stack
-├── homepage-stack.yml         # Homepage dashboard Swarm stack
-├── media-stack.yml            # Jellyfin, Seerr, *arr, qBittorrent, FlareSolverr & Stash stack
-├── npm-stack.yml              # Nginx Proxy Manager & AdGuard Home edge stack
-├── portainer-stack.yml        # Portainer CE & global Swarm agent stack
-├── homepage/
-│   └── config/                # Tracked Homepage dashboard YAML & glassmorphism CSS configs
-│       ├── bookmarks.yaml
-│       ├── custom.css
-│       ├── docker.yaml
-│       ├── services.yaml
-│       ├── settings.yaml
-│       └── widgets.yaml
-└── media-stack/
-    └── config/
-        └── qbittorrent/
-            └── qBittorrent/
-                └── qBittorrent.conf  # Bandwidth scheduler & WebUI subnet whitelist config
-```
+1. **Web Access (Same URLs Everywhere):**
+   - **At Home (Wi-Fi/LAN):** AdGuard Home (`192.168.1.3`) rewrites `*.coinflow.lk` directly to `192.168.1.3` over Gigabit LAN (unlocking full video playback on `https://tv.coinflow.lk` and `https://xx.coinflow.lk`).
+   - **Away from Home:** Cloudflare Zero Trust routes `*.coinflow.lk` through `cloudflared.service`.
+2. **Terminal SSH & Admin Port Forwarding (`~/.ssh/config`):**
+   Install `cloudflared` on your client PC ([see Guide 03](./docs/03-Cloudflare-NPM-and-AdGuard-DNS.md#3-client-workstation-setup-how-to-ssh--tunnel-into-the-home-server)) and add:
+   ```sshconfig
+   Host syntax
+       HostName ssh.coinflow.lk
+       User sandun
+       ProxyCommand ~/.local/bin/cloudflared access ssh --hostname %h
+       LocalForward 3005 127.0.0.1:3005
+       LocalForward 8081 127.0.0.1:81
+       LocalForward 8082 192.168.1.1:80
+   ```
+   Then run `ssh syntax` (or `ssh sandun@192.168.1.3` directly on LAN).
 
 ---
 
-## 🚀 Quick Start (Deploying the Stacks)
-
-For the complete bare-metal installation, storage setup, and remote access walkthrough, see **[`guide.md`](./guide.md)**.
+## 🚀 Quick Stack Deployment Commands
 
 ```bash
-# 1. Initialize Docker Swarm & create the shared attachable overlay network
-docker swarm init
+# 1. Create the shared attachable Swarm overlay network
 docker network create --driver overlay --attachable hub_net
 
 # 2. Deploy all 5 Swarm stacks
@@ -136,17 +127,4 @@ docker stack deploy -c npm-stack.yml edge
 docker stack deploy -c ai-iot-stack.yml ai_stack
 docker stack deploy -c homepage-stack.yml homepage
 docker stack deploy -c media-stack.yml media
-
-# 3. Verify running Swarm services
-docker service ls
 ```
-
----
-
-## 🔐 Connecting to the Home Server (`guide.md`)
-
-Detailed instructions for connecting to the server both **at home (LAN/Wi-Fi)** and **remotely from anywhere (Cloudflare Zero Trust SSH & Web)** are documented in **[`guide.md`](./guide.md)**, including:
-1. **Workstation SSH Proxy & Local Port Forwarding (`ssh syntax`)** via `cloudflared access ssh`
-2. **Split-DNS LAN Resolution** via AdGuard Home (`192.168.1.3`)
-3. **CLI AI Assistant & Hermes Agent** usage via Cloudflare Service Tokens
-4. **Safe Maintenance Procedures** for BitLocker & SMB automount volumes
