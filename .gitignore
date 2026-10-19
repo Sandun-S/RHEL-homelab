@@ -3,6 +3,7 @@
 
 # Always track this file
 !/.gitignore
+!/README.md
 !/guide.md
 
 # Docker stack files
