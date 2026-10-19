@@ -1,0 +1,108 @@
+---
+- AI & LLM:
+    - Open WebUI:
+        icon: open-webui.png
+        href: "https://ai.coinflow.lk"
+        description: "Local Gemma 4 Web Interface"
+        server: my-docker
+        container: ai_stack_open-webui
+        showStats: true
+
+    - Ollama Engine:
+        icon: ollama.png
+        href: "https://ollama.coinflow.lk"
+        description: "Inference Server (gemma4:e2b)"
+        server: my-docker
+        container: ai_stack_ollama
+        showStats: true
+
+- Media & Automation:
+    - Jellyseerr:
+        icon: jellyseerr.png
+        href: "https://request.coinflow.lk"
+        description: "Requests & Discovery Portal"
+        server: my-docker
+        container: media_jellyseerr
+        showStats: true
+
+    - Jellyfin:
+        icon: jellyfin.png
+        href: "https://tv.coinflow.lk"
+        description: "Hardware Accelerated Media Server"
+        server: my-docker
+        container: media_jellyfin
+        showStats: true
+
+    - qBittorrent:
+        icon: qbittorrent.png
+        href: "https://torrent.coinflow.lk"
+        description: "Scheduled Download Client"
+        server: my-docker
+        container: media_qbittorrent
+        showStats: true
+
+    - Radarr:
+        icon: radarr.png
+        href: "https://radarr.coinflow.lk"
+        description: "Movie Automation & Renamer"
+        server: my-docker
+        container: media_radarr
+        showStats: true
+
+    - Sonarr:
+        icon: sonarr.png
+        href: "https://sonarr.coinflow.lk"
+        description: "TV & Series Automation"
+        server: my-docker
+        container: media_sonarr
+        showStats: true
+
+    - Prowlarr:
+        icon: prowlarr.png
+        href: "https://prowlarr.coinflow.lk"
+        description: "Torrent Tracker Manager"
+        server: my-docker
+        container: media_prowlarr
+        showStats: true
+
+- Infrastructure Management:
+    - Portainer:
+        icon: portainer.png
+        href: "https://portainer.coinflow.lk"
+        description: "Docker Swarm Management"
+        server: my-docker
+        container: portainer_portainer
+        showStats: true
+
+    - Nginx Proxy Manager:
+        icon: nginx-proxy-manager.png
+        href: "https://npm.coinflow.lk"
+        description: "Reverse Proxy & SSL Routing"
+        server: my-docker
+        container: edge_npm
+        showStats: true
+
+    - AdGuard Home:
+        icon: adguard-home.png
+        href: "https://adguard.coinflow.lk"
+        description: "Network Ad-Blocker & Split DNS"
+        server: my-docker
+        container: edge_adguard
+        showStats: true
+
+    - RHEL Cockpit:
+        icon: cockpit.png
+        href: "https://cockpit.coinflow.lk"
+        description: "Host Administration"
+        siteMonitor: "https://192.168.1.3:9090"
+
+- Cloudflare Edge:
+    - Cloudflare Tunnels:
+        icon: cloudflare.png
+        href: "https://one.dash.cloudflare.com"
+        description: "Zero Trust Tunnel & Access"
+        widget:
+          type: cloudflared
+          accountid: ""
+          tunnelid: ""
+          key: ""

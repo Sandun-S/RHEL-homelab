@@ -1,0 +1,41 @@
+# Ignore everything by default
+/*
+
+# Always track this file
+!/.gitignore
+!/guide.md
+
+# Docker stack files
+!/ai-iot-stack.yml
+!/homepage-stack.yml
+!/media-stack.yml
+!/npm-stack.yml
+!/portainer-stack.yml
+
+# Homepage configuration directory
+!/homepage/
+/homepage/*
+!/homepage/config/
+/homepage/config/*
+
+# Allow only selected Homepage configuration files
+!/homepage/config/bookmarks.yaml
+!/homepage/config/custom.css
+!/homepage/config/custom.js
+!/homepage/config/docker.yaml
+!/homepage/config/kubernetes.yaml
+!/homepage/config/proxmox.yaml
+!/homepage/config/services.yaml
+!/homepage/config/settings.yaml
+!/homepage/config/widgets.yaml
+
+# qBittorrent: keep only its main configuration file
+!/media-stack/
+/media-stack/*
+!/media-stack/config/
+/media-stack/config/*
+!/media-stack/config/qbittorrent/
+/media-stack/config/qbittorrent/*
+!/media-stack/config/qbittorrent/qBittorrent/
+/media-stack/config/qbittorrent/qBittorrent/*
+!/media-stack/config/qbittorrent/qBittorrent/qBittorrent.conf

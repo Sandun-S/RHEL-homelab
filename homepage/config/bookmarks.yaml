@@ -1,0 +1,53 @@
+---
+# For configuration options and examples, please see:
+# https://gethomepage.dev/configs/bookmarks
+- Developer:
+    - Github:
+        - icon: github.png
+          href: "https://github.com/Sandun-S/"
+
+- Social:
+    - Reddit:
+        - icon: reddit.png
+          href: "https://reddit.com/"
+
+- Entertainment:
+    - YouTube:
+        - icon: youtube.png
+          href: "https://youtube.com/"
+
+- AI Assistants:
+    - ChatGPT:
+        - icon: chatgpt.png
+          href: "https://chatgpt.com/"
+    - Gemini:
+        - icon: google-gemini.png
+          href: "https://gemini.google.com/"
+    - Claude:
+        - icon: claude.png
+          href: "https://claude.ai/"
+    - DeepSeek:
+        - icon: deepseek.png
+          href: "https://chat.deepseek.com/"
+
+- Productivity & Tools:
+    - Outlook:
+        - icon: microsoft-outlook.png
+          href: "https://outlook.live.com/"
+    - Canva:
+        - icon: canva.png
+          href: "https://www.canva.com/"
+    - Seedr:
+        - icon: seedr.png
+          href: "https://www.seedr.cc/"
+
+- Downloads & Media:
+    - YTS:
+        - icon: yts.png
+          href: "https://yts.mx/"
+    - FitGirl Repacks:
+        - icon: "https://fitgirl-repacks.site/favicon.ico"
+          href: "https://fitgirl-repacks.site/"
+    - FileCR:
+        - icon: filecr.png
+          href: "https://filecr.com/"

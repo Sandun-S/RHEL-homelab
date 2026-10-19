@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    restart: always
+    ports:
+      - "3001:3000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /home/sandun/homepage/config:/app/config
+      - /:/host:ro
+    networks:
+      - hub_net
+      - portainer_portainer_net
+    environment:
+      - HOMEPAGE_ALLOWED_HOSTS=home.coinflow.lk,localhost:3001
+    user: "0:0" # "1000:987"   # Replace 998 with the exact GID returned by `getent group docker`
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+
+volumes:
+  homepage_config:
+networks:
+  hub_net:
+    external: true
+  portainer_portainer_net:
+    external: true

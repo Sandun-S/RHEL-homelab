@@ -1,0 +1,23 @@
+---
+# For configuration options and examples, please see:
+# https://gethomepage.dev/configs/settings/
+
+#providers:
+# openweathermap: openweathermapapikey
+# weatherapi: weatherapiapikey
+
+
+title: "Syntax Edge Hub"
+theme: dark
+color: slate
+
+# Background image and blur filter
+background:
+  image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=2560&q=80"
+  blur: sm
+  brightness: 50
+  opacity: 75
+
+# Enables frosted glass effect on service cards
+cardBlur: md
+useEqualHeights: true

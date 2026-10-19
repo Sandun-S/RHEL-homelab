@@ -1,0 +1,213 @@
+version: '3.8'
+
+services:
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Colombo
+      - WEBUI_PORT=8080
+      - TORRENTING_PORT=6881
+    volumes:
+      - /home/sandun/media-stack/config/qbittorrent:/config
+      - /mnt/media_drive/data:/data
+      - /mnt/win_1tb/torrents:/win_torrents
+        #- /mnt/desktop_movies:/desktop_movies
+        #- /mnt/desktop_tv_shows:/desktop_tv_shows
+    ports:
+      - target: 6881
+        published: 6881
+        protocol: tcp
+        mode: host
+      - target: 6881
+        published: 6881
+        protocol: udp
+        mode: host
+    networks:
+      - hub_net
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+      placement:
+        constraints:
+          - node.role == manager
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Colombo
+    volumes:
+      - /home/sandun/media-stack/config/prowlarr:/config
+    networks:
+      - hub_net
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+      placement:
+        constraints:
+          - node.role == manager
+
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Colombo
+    volumes:
+      - /home/sandun/media-stack/config/radarr:/config
+      - /mnt/media_drive/data:/data
+      - /mnt/win_1tb/Movies:/win_movies
+        #- /mnt/desktop_tv_shows:/desktop_tv_shows
+      - /mnt/win_1tb/torrents:/win_torrents
+      - type: bind
+        source: /mnt/desktop_movies
+        target: /desktop_movies
+        bind:
+          propagation: rshared
+    networks:
+      - hub_net
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+      placement:
+        constraints:
+          - node.role == manager
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Colombo
+    volumes:
+      - /home/sandun/media-stack/config/sonarr:/config
+      - /mnt/media_drive/data:/data
+      - /mnt/win_1tb/TV_Shows/:/win_tv_shows
+        #- /mnt/desktop_tv_shows:/desktop_tv_shows
+      - /mnt/win_1tb/torrents:/win_torrents
+      - type: bind
+        source: /mnt/desktop_tv_shows
+        target: /desktop_tv_shows
+        bind:
+          propagation: rshared
+    networks:
+      - hub_net
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+      placement:
+        constraints:
+          - node.role == manager
+
+  jellyseerr:
+    image: seerr/seerr:latest
+    environment:
+      - LOG_LEVEL=debug
+      - TZ=Asia/Colombo
+      - PORT=5055
+    volumes:
+      - /home/sandun/media-stack/config/jellyseerr:/app/config
+    networks:
+      - hub_net
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+      placement:
+        constraints:
+          - node.role == manager
+
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin:latest
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Colombo
+    volumes:
+      - /home/sandun/media-stack/config/jellyfin:/config
+      - /mnt/media_drive/data/media:/data/media
+      - /mnt/win_1tb/Movies/:/data/win_movies
+      - /mnt/win_1tb/TV_Shows/:/data/win_tv_shows
+        #- /mnt/desktop_movies:/data/desktop_movies
+        #- /mnt/desktop_tv_shows:/data/desktop_tv_shows
+      - type: bind
+        source: /mnt/desktop_movies
+        target: /data/desktop_movies
+        bind:
+          propagation: rshared
+      - type: bind
+        source: /mnt/desktop_tv_shows
+        target: /data/desktop_tv_shows
+        bind:
+          propagation: rshared
+    ports:
+      - target: 8096
+        published: 8096
+        protocol: tcp
+        mode: host
+    networks:
+      - hub_net
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+      placement:
+        constraints:
+          - node.role == manager
+
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    environment:
+      - LOG_LEVEL=info
+      - TZ=Asia/Colombo
+    networks:
+      - hub_net
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+      placement:
+        constraints:
+          - node.role == manager
+
+  stash:
+    image: stashapp/stash:latest
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Colombo
+    volumes:
+      - /home/sandun/media-stack/config/stash:/root/.stash
+      - /mnt/media_drive/data:/data
+      - /home/sandun/media-stack/config/stash/generated:/generated
+        #- /mnt/desktop_001:/desktop_001
+      - type: bind
+        source: /mnt/desktop_001
+        target: /desktop_001
+        bind:
+          propagation: rshared
+    ports:
+      - target: 9999
+        published: 9999
+        protocol: tcp
+        mode: host
+    networks:
+      - hub_net
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+      placement:
+        constraints:
+          - node.role == manager
+
+networks:
+  hub_net:
+    external: true

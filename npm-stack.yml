@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  npm:
+    image: jc21/nginx-proxy-manager:latest
+    restart: always
+    ports:
+      - "80:80"
+      - "81:81"
+      - "443:443"
+    volumes:
+      - npm_data:/data
+      - npm_letsencrypt:/etc/letsencrypt
+    networks:
+      - hub_net
+      - portainer_portainer_net
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+
+  adguard:
+    image: adguard/adguardhome:latest
+    restart: always
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "3005:3000/tcp" # Using 3005 so it doesn't clash with Open WebUI (3000) or Homepage (3001)
+    volumes:
+      - adguard_work:/opt/adguardhome/work
+      - adguard_conf:/opt/adguardhome/conf
+    networks:
+      - hub_net
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+
+networks:
+  hub_net:
+    external: true
+  portainer_portainer_net:
+    external: true
+
+volumes:
+  npm_data:
+  npm_letsencrypt:
+  adguard_work:
+  adguard_conf:
