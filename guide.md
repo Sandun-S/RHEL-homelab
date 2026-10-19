@@ -59,22 +59,23 @@ You use the **exact same `https://*.coinflow.lk` URLs** both at home and away:
   - Public DNS routes `*.coinflow.lk` through the **Cloudflare Zero Trust Tunnel** (`cloudflared.service`).
   - Protected dashboards require Cloudflare Access authentication. `https://tv.coinflow.lk` permits remote catalog browsing and Jellyseerr requests (`https://request.coinflow.lk`), while blocking high-bandwidth video playback over the internet to comply with Cloudflare ToS.
 
-| Service | Domain URL | Direct LAN Fallback |
-| :--- | :--- | :--- |
-| **Homepage Dashboard** | `https://home.coinflow.lk` | `http://192.168.1.3:3001` |
-| **Open WebUI (AI Chat)** | `https://ai.coinflow.lk` | `http://192.168.1.3:3000` |
-| **Ollama Inference API** | `https://ollama.coinflow.lk` | `http://192.168.1.3:11434` |
-| **Jellyfin Media Server** | `https://tv.coinflow.lk` | `http://192.168.1.3:8096` |
-| **Jellyseerr (Seerr Requests)** | `https://request.coinflow.lk` | *(Routed via `hub_net`)* |
-| **qBittorrent WebUI** | `https://torrent.coinflow.lk` | *(Routed via `hub_net`)* |
-| **Radarr (Movies)** | `https://radarr.coinflow.lk` | *(Routed via `hub_net`)* |
-| **Sonarr (TV Shows)** | `https://sonarr.coinflow.lk` | *(Routed via `hub_net`)* |
-| **Prowlarr (Indexers)** | `https://prowlarr.coinflow.lk` | *(Routed via `hub_net`)* |
-| **Stash** | `https://xx.coinflow.lk` | `http://192.168.1.3:9999` *(LAN only)* |
-| **Portainer CE** | `https://portainer.coinflow.lk` | `https://192.168.1.3:9443` |
-| **Nginx Proxy Manager** | `https://npm.coinflow.lk` | `http://192.168.1.3:81` |
-| **AdGuard Home** | `https://adguard.coinflow.lk` | `http://192.168.1.3:3005` |
-| **RHEL Cockpit + KVM** | `https://cockpit.coinflow.lk` | `https://192.168.1.3:9090` |
+
+| Service                         | Domain URL                      | Direct LAN Fallback                    |
+| :-------------------------------- | :-------------------------------- | :--------------------------------------- |
+| **Homepage Dashboard**          | `https://home.coinflow.lk`      | `http://192.168.1.3:3001`              |
+| **Open WebUI (AI Chat)**        | `https://ai.coinflow.lk`        | `http://192.168.1.3:3000`              |
+| **Ollama Inference API**        | `https://ollama.coinflow.lk`    | `http://192.168.1.3:11434`             |
+| **Jellyfin Media Server**       | `https://tv.coinflow.lk`        | `http://192.168.1.3:8096`              |
+| **Jellyseerr (Seerr Requests)** | `https://request.coinflow.lk`   | *(Routed via `hub_net`)*               |
+| **qBittorrent WebUI**           | `https://torrent.coinflow.lk`   | *(Routed via `hub_net`)*               |
+| **Radarr (Movies)**             | `https://radarr.coinflow.lk`    | *(Routed via `hub_net`)*               |
+| **Sonarr (TV Shows)**           | `https://sonarr.coinflow.lk`    | *(Routed via `hub_net`)*               |
+| **Prowlarr (Indexers)**         | `https://prowlarr.coinflow.lk`  | *(Routed via `hub_net`)*               |
+| **Stash**                       | `https://xx.coinflow.lk`        | `http://192.168.1.3:9999` *(LAN only)* |
+| **Portainer CE**                | `https://portainer.coinflow.lk` | `https://192.168.1.3:9443`             |
+| **Nginx Proxy Manager**         | `https://npm.coinflow.lk`       | `http://192.168.1.3:81`                |
+| **AdGuard Home**                | `https://adguard.coinflow.lk`   | `http://192.168.1.3:3005`              |
+| **RHEL Cockpit + KVM**          | `https://cockpit.coinflow.lk`   | `https://192.168.1.3:9090`             |
 
 ---
 
@@ -106,8 +107,8 @@ Add the following block to `~/.ssh/config` on your client workstation:
 
 ```sshconfig
 Host syntax
-    HostName ssh.coinflow.lk
-    User sandun
+    HostName temp.coinflow.lk
+    User temp
     ProxyCommand ~/.local/bin/cloudflared access ssh --hostname %h
     LocalForward 3005 127.0.0.1:3005
     LocalForward 8081 127.0.0.1:81
@@ -115,22 +116,26 @@ Host syntax
 ```
 
 #### How to Connect:
+
 1. **Via Zero-Trust SSH Tunnel (Works from Anywhere + Opens Local Port Forwards):**
+
    ```bash
    ssh syntax
    ```
+
    While this session is open, you can open these URLs in your local workstation browser:
+
    - **`http://localhost:3005`** $\rightarrow$ AdGuard Home UI on `syntax` (`127.0.0.1:3005`)
    - **`http://localhost:8081`** $\rightarrow$ Nginx Proxy Manager Admin UI on `syntax` (`127.0.0.1:81`)
    - **`http://localhost:8082`** $\rightarrow$ ZTE F660 Home Router UI (`192.168.1.1:80`)
-
 2. **Running Additional SSH Commands When a Session is Already Open:**
    To avoid `bind: Address already in use` on ports `3005`/`8081`/`8082` when opening a second terminal or running scripts:
+
    ```bash
    ssh -o ClearAllForwardings=yes syntax
    ```
-
 3. **Direct LAN SSH (When on Home Wi-Fi without Cloudflare):**
+
    ```bash
    ssh sandun@192.168.1.3
    ```
@@ -140,6 +145,7 @@ Host syntax
 ## Part 2: Base OS Installation, UEFI Fix & Hardware Hardening
 
 ### 2.1 RHEL 10.1 Anaconda Offline Install on External USB NVMe
+
 1. Flash the **RHEL 10.1 Boot ISO** to a USB stick using Rufus or BalenaEtcher.
 2. In the Anaconda installer:
    - Skip network setup during graphical installation (offline minimal install).
@@ -147,6 +153,7 @@ Host syntax
    - *Tip:* Use `Ctrl + Alt + F2` for root TTY console during install, and `Ctrl + Alt + F6` to return to the GUI.
 
 ### 2.2 UEFI Removable Media Bootloader Fix (`BOOTX64.EFI`)
+
 Standard PC UEFI firmware looks for removable bootloaders at `EFI/BOOT/BOOTX64.EFI`, whereas RHEL installs to `EFI/redhat/`. Copy the EFI binaries and automate future kernel updates:
 
 ```bash
@@ -208,6 +215,7 @@ sudo systemctl enable --now libvirtd
 ## Part 3: Hybrid 3-Tier Storage Engineering (LVM, NTFS, BitLocker & SMB)
 
 ### 3.1 Mounting Secondary NTFS Partition (`/dev/sda2` -> `/mnt/media_drive`)
+
 ```bash
 sudo dnf install -y epel-release
 sudo dnf install -y ntfs-3g
@@ -217,6 +225,7 @@ echo "UUID=2C66F38766F34FD6 /mnt/media_drive ntfs-3g uid=1000,gid=1000,umask=022
 ```
 
 ### 3.2 Online LVM `/home` Reclamation into `/` (62 GB XFS Root)
+
 Because Docker images in `/var/lib/docker` consume root space and XFS cannot be shrunk online, the 20.3 GB `rhel_syntax-home` LV was backed up, removed, and merged into `rhel_syntax-root`:
 
 ```bash
@@ -237,6 +246,7 @@ systemctl start docker
 ```
 
 ### 3.3 Automated Boot-Time BitLocker Unlock (`/dev/sdb1` -> `/mnt/win_1tb`)
+
 Unlock the internal 1 TB Windows BitLocker HDD (`PARTUUID=7937ddea-af22-4c7e-8660-2510540ef0a7`) automatically at boot using `systemd-cryptsetup`:
 
 ```bash
@@ -260,20 +270,25 @@ sudo mount /mnt/win_1tb
 ```
 
 ### 3.4 Windows Desktop SMB Shares & Fault-Tolerant `x-systemd.automount`
+
 1. **On Windows Desktop (`192.168.1.2`):**
+
    - Share folders `Movies`, `TV_Shows`, and `001` with `Everyone` (**Read/Change** permissions).
    - In **Network & Sharing Center -> All Networks**, turn **OFF** Password Protected Sharing.
 2. **On RHEL Server (`192.168.1.3`):**
+
    ```bash
    sudo dnf install -y cifs-utils samba-client
    sudo mkdir -p /mnt/desktop_movies /mnt/desktop_tv_shows /mnt/desktop_001
    ```
+
    Add fault-tolerant automount lines to `/etc/fstab` (mounts on demand, unmounts after 60s idle, and skips in 5s if the desktop PC is powered off):
    ```fstab
    //192.168.1.2/Movies    /mnt/desktop_movies    cifs  username=guest,password=,uid=1000,gid=1000,vers=3.0,soft,_netdev,nofail,x-systemd.automount,x-systemd.idle-timeout=60,x-systemd.mount-timeout=5s  0  0
    //192.168.1.2/TV_Shows  /mnt/desktop_tv_shows  cifs  username=guest,password=,uid=1000,gid=1000,vers=3.0,soft,_netdev,nofail,x-systemd.automount,x-systemd.idle-timeout=60,x-systemd.mount-timeout=5s  0  0
    //192.168.1.2/001       /mnt/desktop_001       cifs  username=guest,password=,uid=1000,gid=1000,vers=3.0,soft,_netdev,nofail,x-systemd.automount,x-systemd.idle-timeout=60,x-systemd.mount-timeout=5s  0  0
    ```
+
    Apply and test:
    ```bash
    sudo systemctl daemon-reload
@@ -282,7 +297,9 @@ sudo mount /mnt/win_1tb
    ```
 
 ### 3.5 Safe Unmount / Remount Procedure for `/mnt/win_1tb`
+
 Before unmounting `/mnt/win_1tb`, scale down the Swarm services holding active bind mounts:
+
 ```bash
 docker service scale media_jellyfin=0 media_qbittorrent=0 media_radarr=0 media_sonarr=0 media_stash=0
 sudo umount /mnt/win_1tb
@@ -304,11 +321,13 @@ docker service scale media_jellyfin=1 media_qbittorrent=1 media_radarr=1 media_s
 ### 4.1 Host `cloudflared.service` Installation & Systemd Unit
 
 1. **Install `cloudflared` on RHEL 10.1 Host (`syntax`):**
+
    ```bash
    sudo curl -fsSL https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o /usr/bin/cloudflared
    sudo chmod +x /usr/bin/cloudflared
    ```
 2. **Store Tunnel Connector Token:**
+
    ```bash
    sudo install -d -m 700 /etc/cloudflared
    sudo install -m 600 /dev/null /etc/cloudflared/token
@@ -316,6 +335,7 @@ docker service scale media_jellyfin=1 media_qbittorrent=1 media_radarr=1 media_s
    sudoedit /etc/cloudflared/token
    ```
 3. **Create `/etc/systemd/system/cloudflared.service`:**
+
    ```ini
    [Unit]
    Description=Cloudflare Tunnel client
@@ -332,6 +352,7 @@ docker service scale media_jellyfin=1 media_qbittorrent=1 media_radarr=1 media_s
    [Install]
    WantedBy=multi-user.target
    ```
+
    Enable and start:
    ```bash
    sudo systemctl daemon-reload
@@ -385,25 +406,28 @@ In the Cloudflare Zero Trust Dashboard (`one.dash.cloudflare.com`):
 
 Access NPM Admin UI at `http://192.168.1.3:81` (or `http://localhost:8081` via SSH forward) and configure the following Proxy Hosts (all sharing a wildcard/Let's Encrypt SSL cert with HTTP/2 enabled):
 
-| Domain Name | Scheme | Forward Hostname / IP | Port | WebSockets | Block Exploits | Special Config |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| `npm.coinflow.lk` | `http` | `edge_npm` | `81` | ON | OFF | NPM Admin UI |
-| `adguard.coinflow.lk` | `http` | `edge_adguard` | `3000` | ON | **OFF** | Keep exploits OFF for DNS/API queries |
-| `ai.coinflow.lk` | `http` | `ai_stack_open-webui` | `8080` | ON | ON | WebSockets required for streaming tokens |
-| `cockpit.coinflow.lk` | `https` | `192.168.1.3` | `9090` | **ON** | **OFF** | Host IP `:9090` |
-| `portainer.coinflow.lk` | `https` | `portainer_portainer` | `9443` | ON | ON | Routed via `portainer_portainer_net` |
-| `home.coinflow.lk` | `http` | `homepage_homepage` | `3000` | OFF | ON | Homepage dashboard |
-| `ollama.coinflow.lk` | `http` | `ai_stack_ollama` | `11434` | ON | ON | Raw Ollama API |
-| `request.coinflow.lk` | `http` | `media_jellyseerr` | `5055` | ON | ON | Seerr request portal |
-| `tv.coinflow.lk` | `http` | `media_jellyfin` | `8096` | **ON** | OFF | Force SSL **OFF** + Custom stream block below |
-| `prowlarr.coinflow.lk` | `http` | `media_prowlarr` | `9696` | OFF | ON | Indexer manager |
-| `radarr.coinflow.lk` | `http` | `media_radarr` | `7878` | OFF | ON | Movie manager |
-| `sonarr.coinflow.lk` | `http` | `media_sonarr` | `8989` | OFF | ON | TV series manager |
-| `torrent.coinflow.lk` | `http` | `media_qbittorrent` | `8080` | OFF | ON | qBittorrent WebUI |
-| `xx.coinflow.lk` | `http` | `192.168.1.3` | `9999` | **ON** | ON | Stash + LAN-only lock below |
+
+| Domain Name             | Scheme  | Forward Hostname / IP | Port    | WebSockets | Block Exploits | Special Config                               |
+| :------------------------ | :-------- | :---------------------- | :-------- | :----------- | :--------------- | :--------------------------------------------- |
+| `npm.coinflow.lk`       | `http`  | `edge_npm`            | `81`    | ON         | OFF            | NPM Admin UI                                 |
+| `adguard.coinflow.lk`   | `http`  | `edge_adguard`        | `3000`  | ON         | **OFF**        | Keep exploits OFF for DNS/API queries        |
+| `ai.coinflow.lk`        | `http`  | `ai_stack_open-webui` | `8080`  | ON         | ON             | WebSockets required for streaming tokens     |
+| `cockpit.coinflow.lk`   | `https` | `192.168.1.3`         | `9090`  | **ON**     | **OFF**        | Host IP`:9090`                               |
+| `portainer.coinflow.lk` | `https` | `portainer_portainer` | `9443`  | ON         | ON             | Routed via`portainer_portainer_net`          |
+| `home.coinflow.lk`      | `http`  | `homepage_homepage`   | `3000`  | OFF        | ON             | Homepage dashboard                           |
+| `ollama.coinflow.lk`    | `http`  | `ai_stack_ollama`     | `11434` | ON         | ON             | Raw Ollama API                               |
+| `request.coinflow.lk`   | `http`  | `media_jellyseerr`    | `5055`  | ON         | ON             | Seerr request portal                         |
+| `tv.coinflow.lk`        | `http`  | `media_jellyfin`      | `8096`  | **ON**     | OFF            | Force SSL**OFF** + Custom stream block below |
+| `prowlarr.coinflow.lk`  | `http`  | `media_prowlarr`      | `9696`  | OFF        | ON             | Indexer manager                              |
+| `radarr.coinflow.lk`    | `http`  | `media_radarr`        | `7878`  | OFF        | ON             | Movie manager                                |
+| `sonarr.coinflow.lk`    | `http`  | `media_sonarr`        | `8989`  | OFF        | ON             | TV series manager                            |
+| `torrent.coinflow.lk`   | `http`  | `media_qbittorrent`   | `8080`  | OFF        | ON             | qBittorrent WebUI                            |
+| `xx.coinflow.lk`        | `http`  | `192.168.1.3`         | `9999`  | **ON**     | ON             | Stash + LAN-only lock below                  |
 
 #### Custom NPM Advanced Config 1: Block Remote Internet Video Streaming on `tv.coinflow.lk`
+
 Paste into **NPM -> Proxy Hosts -> `tv.coinflow.lk` -> Advanced Tab**:
+
 ```nginx
 proxy_buffering off;
 
@@ -426,7 +450,9 @@ location ~* ^/(Videos|Audio|LiveStreams)/ {
 ```
 
 #### Custom NPM Advanced Config 2: Strict LAN-Only Lock on `xx.coinflow.lk`
+
 Paste into **NPM -> Proxy Hosts -> `xx.coinflow.lk` -> Advanced Tab**:
+
 ```nginx
 proxy_buffering off;
 
@@ -460,7 +486,9 @@ if ($http_cf_connecting_ip != "") {
 ## Part 5: Master Docker Swarm Stack Deployment & Homepage Dashboard
 
 ### 5.1 Creating Host Prerequisite Directories
+
 Docker Swarm requires all bind-mounted directories to exist on the host before deploying stacks:
+
 ```bash
 mkdir -p ~/homepage/config
 mkdir -p ~/media-stack/config/{qbittorrent,prowlarr,radarr,sonarr,jellyseerr,jellyfin,stash/generated}
@@ -470,6 +498,7 @@ sudo chown -R 1000:1000 /mnt/media_drive/data ~/media-stack/config
 ```
 
 ### 5.2 Deploying All 5 Docker Swarm Stacks
+
 ```bash
 # Ensure the shared external overlay network exists
 docker network create --driver overlay --attachable hub_net
@@ -486,6 +515,7 @@ docker service ls
 ```
 
 ### 5.3 Homepage Dashboard (`Syntax Edge Hub`) Configuration
+
 - Configuration files live in `~/homepage/config/` (`services.yaml`, `widgets.yaml`, `docker.yaml`, `settings.yaml`, `custom.css`, `bookmarks.yaml`).
 - In `homepage-stack.yml`, `HOMEPAGE_ALLOWED_HOSTS=home.coinflow.lk,localhost:3001` prevents HTTP `403 Forbidden` host validation errors.
 - If enabling the Cloudflare Tunnel status widget in `~/homepage/config/services.yaml`, populate `accountid`, `tunnelid`, and `key` with `<PLACEHOLDER>` or environment variables so API tokens are never committed to Git.
@@ -498,22 +528,24 @@ Because all media services attach to the **`hub_net`** Swarm overlay network, th
 
 ### 6.1 Internal Swarm Service Addresses & Root Folder Mappings
 
-| App | Internal `hub_net` URL | Container Media / Download Paths | Mapped Host / SMB Paths |
-| :--- | :--- | :--- | :--- |
-| **qBittorrent** | `http://media_qbittorrent:8080` | `/win_torrents`, `/data/torrents` | `/mnt/win_1tb/torrents`, `/mnt/media_drive/data/torrents` |
-| **FlareSolverr** | `http://media_flaresolverr:8191` | — | — |
-| **Prowlarr** | `http://media_prowlarr:9696` | — | — |
-| **Radarr** | `http://media_radarr:7878` | `/win_movies`, `/desktop_movies`, `/data/media/movies`, `/win_torrents` | `/mnt/win_1tb/Movies`, `/mnt/desktop_movies`, `/mnt/media_drive/data/media/movies`, `/mnt/win_1tb/torrents` |
-| **Sonarr** | `http://media_sonarr:8989` | `/win_tv_shows`, `/desktop_tv_shows`, `/data/media/tv`, `/win_torrents` | `/mnt/win_1tb/TV_Shows`, `/mnt/desktop_tv_shows`, `/mnt/media_drive/data/media/tv`, `/mnt/win_1tb/torrents` |
-| **Jellyseerr** | `http://media_jellyseerr:5055` | — | — |
-| **Jellyfin** | `http://media_jellyfin:8096` | `/data/win_movies`, `/data/desktop_movies`, `/data/win_tv_shows`, `/data/desktop_tv_shows`, `/data/media` | `/mnt/win_1tb/Movies`, `/mnt/desktop_movies`, `/mnt/win_1tb/TV_Shows`, `/mnt/desktop_tv_shows`, `/mnt/media_drive/data/media` |
-| **Stash** | `http://media_stash:9999` | `/desktop_001`, `/data`, `/generated` | `/mnt/desktop_001`, `/mnt/media_drive/data`, `~/media-stack/config/stash/generated` |
+
+| App              | Internal`hub_net` URL            | Container Media / Download Paths                                                                          | Mapped Host / SMB Paths                                                                                                       |
+| :----------------- | :--------------------------------- | :---------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------ |
+| **qBittorrent**  | `http://media_qbittorrent:8080`  | `/win_torrents`, `/data/torrents`                                                                         | `/mnt/win_1tb/torrents`, `/mnt/media_drive/data/torrents`                                                                     |
+| **FlareSolverr** | `http://media_flaresolverr:8191` | —                                                                                                        | —                                                                                                                            |
+| **Prowlarr**     | `http://media_prowlarr:9696`     | —                                                                                                        | —                                                                                                                            |
+| **Radarr**       | `http://media_radarr:7878`       | `/win_movies`, `/desktop_movies`, `/data/media/movies`, `/win_torrents`                                   | `/mnt/win_1tb/Movies`, `/mnt/desktop_movies`, `/mnt/media_drive/data/media/movies`, `/mnt/win_1tb/torrents`                   |
+| **Sonarr**       | `http://media_sonarr:8989`       | `/win_tv_shows`, `/desktop_tv_shows`, `/data/media/tv`, `/win_torrents`                                   | `/mnt/win_1tb/TV_Shows`, `/mnt/desktop_tv_shows`, `/mnt/media_drive/data/media/tv`, `/mnt/win_1tb/torrents`                   |
+| **Jellyseerr**   | `http://media_jellyseerr:5055`   | —                                                                                                        | —                                                                                                                            |
+| **Jellyfin**     | `http://media_jellyfin:8096`     | `/data/win_movies`, `/data/desktop_movies`, `/data/win_tv_shows`, `/data/desktop_tv_shows`, `/data/media` | `/mnt/win_1tb/Movies`, `/mnt/desktop_movies`, `/mnt/win_1tb/TV_Shows`, `/mnt/desktop_tv_shows`, `/mnt/media_drive/data/media` |
+| **Stash**        | `http://media_stash:9999`        | `/desktop_001`, `/data`, `/generated`                                                                     | `/mnt/desktop_001`, `/mnt/media_drive/data`, `~/media-stack/config/stash/generated`                                           |
 
 ---
 
 ### 6.2 Step-by-Step App Wiring (qBittorrent -> Prowlarr -> Radarr/Sonarr -> Seerr -> Jellyfin)
 
 #### Step 1: Configure qBittorrent (`https://torrent.coinflow.lk`)
+
 1. Retrieve the initial temporary password from container logs if logging in for the first time:
    ```bash
    docker service logs media_qbittorrent | grep -i "temporary password"
@@ -525,6 +557,7 @@ Because all media services attach to the **`hub_net`** Swarm overlay network, th
 4. In **Tools -> Options -> Speed**, enable bandwidth scheduling so heavy downloads run during off-peak hours.
 
 #### Step 2: Connect Prowlarr to FlareSolverr & Radarr/Sonarr (`https://prowlarr.coinflow.lk`)
+
 1. **Add FlareSolverr Proxy (for Cloudflare-protected indexers):**
    - Go to **Settings -> Indexers -> Add (`+`) -> FlareSolverr**.
    - **Name:** `FlareSolverr`
@@ -543,6 +576,7 @@ Because all media services attach to the **`hub_net`** Swarm overlay network, th
      - **API Key:** `<SONARR_API_KEY_PLACEHOLDER>` *(Copy from Sonarr -> Settings -> General)*
 
 #### Step 3: Configure Radarr (`https://radarr.coinflow.lk`) & Sonarr (`https://sonarr.coinflow.lk`)
+
 1. **Add Root Folders (`Settings -> Media Management -> Root Folders`):**
    - **In Radarr:** Add `/win_movies` (1 TB BitLocker HDD), `/desktop_movies` (Windows Desktop SMB share), and `/data/media/movies` (SSD staging).
    - **In Sonarr:** Add `/win_tv_shows` (1 TB BitLocker HDD), `/desktop_tv_shows` (Windows Desktop SMB share), and `/data/media/tv` (SSD staging).
@@ -555,12 +589,14 @@ Because all media services attach to the **`hub_net`** Swarm overlay network, th
    - Because both qBittorrent and Radarr/Sonarr mount `/mnt/win_1tb/torrents` at `/win_torrents` and `/mnt/media_drive/data` at `/data`, paths match 1:1 automatically! If qBittorrent saves to `/win_torrents`, ensure `/win_torrents` is mounted in Radarr and Sonarr (already included in `media-stack.yml`).
 
 #### Step 4: Configure Jellyfin (`https://tv.coinflow.lk`)
+
 1. Complete the initial setup wizard and add Media Libraries under **Dashboard -> Libraries -> Add Media Library**:
    - **Movies Library:** Add folders `/data/win_movies`, `/data/desktop_movies`, and `/data/media/movies`.
    - **Shows Library:** Add folders `/data/win_tv_shows`, `/data/desktop_tv_shows`, and `/data/media/tv`.
 2. Under **Dashboard -> Networking**, leave Known Proxies / Base URL clean so Nginx Proxy Manager handles reverse proxying transparently.
 
 #### Step 5: Connect Jellyseerr / Seerr (`https://request.coinflow.lk`)
+
 1. Open `https://request.coinflow.lk` and choose **Sign in with Jellyfin**:
    - **Jellyfin URL:** `http://media_jellyfin:8096`
    - Sync your Jellyfin `Movies` and `Shows` libraries.
@@ -578,6 +614,7 @@ Because all media services attach to the **`hub_net`** Swarm overlay network, th
 ---
 
 ### 6.3 Stash Setup & Security Tripwire Reset (`https://xx.coinflow.lk`)
+
 1. Access `https://xx.coinflow.lk` from your home Wi-Fi/LAN and configure library paths `/desktop_001` and `/data`, with generated metadata pointed to `/generated`.
 2. If Stash ever triggers its public internet security lock (`security_tripwire_accessed_from_public_internet`), reset it by editing `~/media-stack/config/stash/config.yml`:
    - Remove the `security_tripwire_accessed_from_public_internet` line and configure authentication in **Settings -> Security**, then restart the service:
